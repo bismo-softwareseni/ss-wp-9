@@ -168,15 +168,25 @@ class SS_WP_9_Main {
 		$parameters = $request->get_params();
 
 		if ( null !== $parameters ) {
-			// -- get testimonials
-			$ss_args = array(
-				'post_type'      => $this->ss_custom_post_type_name,
-				'post_status'    => 'publish',
-				'orderby'        => 'title',
-				'order'          => 'ASC',
-				'paged'          => $parameters['page'],
-				'posts_per_page' => $parameters['per_page'],
-			);
+			// -- spesific testimonials
+			if ( ! empty( $parameters['id'] ) ) {
+				// -- get spesific testimonials
+				$ss_args = array(
+					'post_type'   => $this->ss_custom_post_type_name,
+					'post_status' => 'publish',
+					'p'           => $parameters['id'],
+				);
+			} else {
+				// -- get all testimonials
+				$ss_args = array(
+					'post_type'      => $this->ss_custom_post_type_name,
+					'post_status'    => 'publish',
+					'orderby'        => 'title',
+					'order'          => 'ASC',
+					'paged'          => $parameters['page'],
+					'posts_per_page' => $parameters['per_page'],
+				);
+			}
 
 			$ss_testimonials = new WP_Query( $ss_args );
 
@@ -191,7 +201,8 @@ class SS_WP_9_Main {
 	/**
 	 * Function for registering REST route
 	 */
-	public function ss_wp9_reg_all_testimonials() {
+	public function ss_wp9_reg_rest_route() {
+		// -- all testimonials
 		register_rest_route(
 			'ss-wp-9/v1',
 			'/testimonials',
@@ -214,6 +225,24 @@ class SS_WP_9_Main {
 				),
 			)
 		);
+
+		// -- spesific testimonials
+		register_rest_route(
+			'ss-wp-9/v1',
+			'/testimonials/(?P<id>\d+)',
+			array(
+				'methods'  => 'GET',
+				'callback' => array( $this, 'ss_wp9_get_testimonials' ),
+				'args'     => array(
+					'id' => array(
+						'validate_callback' => function( $param, $request, $key ) {
+							return is_numeric( $param );
+						},
+						'required'          => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -232,7 +261,7 @@ class SS_WP_9_Main {
 		add_shortcode( 'wp9_custom_rest_api', array( $this, 'ss_wp9_create_shortcode' ) );
 
 		// -- register REST API custom route
-		add_action( 'rest_api_init', array( $this, 'ss_wp9_reg_all_testimonials' ) );
+		add_action( 'rest_api_init', array( $this, 'ss_wp9_reg_rest_route' ) );
 	}
 }
 
