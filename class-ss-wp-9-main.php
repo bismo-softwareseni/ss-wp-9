@@ -158,7 +158,7 @@ class SS_WP_9_Main {
 	/**
 	 * Function to get testimonial data
 	 *
-	 * @param WP_REST_Request $request page and per_page.
+	 * @param WP_REST_Request $request page, per_page, or id.
 	 * @return object $ss_testimonials Testimonials data.
 	 */
 	public function ss_wp9_get_testimonials( WP_REST_Request $request ) {
@@ -243,6 +243,72 @@ class SS_WP_9_Main {
 				),
 			)
 		);
+
+		// -- insert new testimonial
+		register_rest_route(
+			'ss-wp-9/v1',
+			'/testimonials',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'ss_wp9_insert_testimonial' ),
+				'permission_callback' => function() {
+					return true;
+					// return current_user_can( 'publish_posts' );
+				},
+				'args'                => array(
+					'author'  => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'required'          => true,
+					),
+					'content' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'required'          => true,
+					),
+					'date'    => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'required'          => true,
+					),
+					'rate'    => array(
+						'type'              => 'int',
+						'sanitize_callback' => 'absint',
+						'required'          => true,
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Function for inserting new testimonials
+	 *
+	 * @param WP_REST_Request $request author, content, date, rate.
+	 * @return object $response The message whether insert success or not.
+	 */
+	public function ss_wp9_insert_testimonial( WP_REST_Request $request ) {
+		// -- get parameters
+		$parameters = $request->get_params();
+
+		if ( null !== $parameters ) {
+			$ss_insert_args = array(
+				'post_title'   => substr( $parameters['content'], 0, 100 ),
+				'post_status'  => 'publish',
+				'post_content' => $parameters['content'],
+				'post_type'    => $this->ss_custom_post_type_name,
+				'meta_input'   => array(
+					$this->ss_prefix . 'author'  => $parameters['author'],
+					$this->ss_prefix . 'content' => $parameters['content'],
+					$this->ss_prefix . 'date'    => $parameters['date'],
+					$this->ss_prefix . 'rate'    => $parameters['rate'],
+				),
+			);
+
+			$response = wp_insert_post( $ss_insert_args, true );
+
+			return $response;
+		}
 	}
 
 	/**
