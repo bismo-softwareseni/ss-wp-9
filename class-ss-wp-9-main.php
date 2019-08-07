@@ -72,23 +72,79 @@ class SS_WP_9_Main {
 		);
 
 		// -- display insert new testimonial
-		$this->ss_wp9_display_ins_form();
+		$this->ss_wp9_display_form( 'insert' );
 
 		// -- display testimonial ( ajax )
 		$this->ss_wp9_display_testimonials( 1, $this->ss_per_page );
+
+		// -- display update testimonial
+		$this->ss_wp9_display_form( 'update' );
 
 		return ob_get_clean();
 	}
 
 	/**
-	 * Function to display form to insert new testimonial
+	 * Function to display form
+	 *
+	 * @param string $ss_action Action insert or update.
 	 */
-	public function ss_wp9_display_ins_form() {
+	public function ss_wp9_display_form( $ss_action ) {
+		$ss_custom_ss = 'margin-bottom: 50px;';
+
+		// -- set custom css for update form
+		if ( 'update' === $ss_action ) {
+			$ss_custom_ss = 'margin-bottom: 50px; display: none;';
+		}
+
 		// -- only show the form to the user that has access and have been logged in
 		if ( is_user_logged_in() && current_user_can( 'edit_posts' ) ) {
 			?>
 
-		<form class="ss-api-form-submit-post ui form" style="margin-bottom: 50px;">
+		<form class="ss-api-form-<?php echo esc_attr( $ss_action ); ?>-post ui form" style="<?php echo esc_attr( $ss_custom_ss ); ?>">
+			<h4><?php echo esc_html( $ss_action ); ?> New Testimonial</h4>
+
+			<div class="field">
+				<label for="ss-input-tst-title">Author</label>
+				<input required type="text" name="ss-input-tst-author" id="ss-input-tst-author" class="ss-input-text" value="" style="width:100%;" />
+			</div>
+
+			<div class="field">
+				<label for="ss-input-tst-title">Content</label>
+				<textarea required name="ss-input-tst-content" id="ss-input-tst-content" class="ss-input-textarea" style="width:100%;"></textarea>
+			</div>
+
+			<div class="field">
+				<label for="ss-input-tst-date">Date ( Format: yyyy-mm-dd ) </label>
+				<input required type="text" name="ss-input-tst-date" id="ss-input-tst-date" class="ss-input-text" value="" style="width:100%;" />
+			</div>
+
+			<div class="field">
+				<label for="ss-input-tst-rate">Rate</label>
+				<select class="ui fluid dropdown" name="ss-input-tst-rate" id="ss-input-tst-rate">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+				</select>
+			</div>
+
+			<button type="submit" name="ss-tst-submit" class="ss-button ui button" style="margin-top:10px;">Submit</button>
+		</form>
+
+			<?php
+		}
+	}
+
+	/**
+	 * Function to display form to update testimonial
+	 */
+	public function ss_wp9_display_upt_form() {
+		// -- only show the form to the user that has access and have been logged in
+		if ( is_user_logged_in() && current_user_can( 'edit_posts' ) ) {
+			?>
+
+		<form class="ss-api-form-update-post ui form" style="margin-bottom: 50px; display: none;">
 			<h4>Insert New Testimonial</h4>
 
 			<div class="field">
@@ -125,6 +181,7 @@ class SS_WP_9_Main {
 	}
 
 
+
 	/**
 	 * Function to display testimonials
 	 *
@@ -155,10 +212,16 @@ class SS_WP_9_Main {
 				foreach ( $ss_posts_result as $ss_post ) {
 					?>
 
-				<h5 class="post-<?php echo esc_attr( $ss_post->ID ); ?>">
-					<a href="<?php echo esc_url( get_permalink( $ss_post->ID ) ); ?>">
-						<?php echo esc_html( $ss_post->post_content ); ?>
-					</a>
+				<div class="post-<?php echo esc_attr( $ss_post->ID ); ?>">
+					<h4>
+						<a href="<?php echo esc_url( get_permalink( $ss_post->ID ) ); ?>">
+							<?php echo esc_html( $ss_post->post_content ); ?>
+						</a>
+					</h4>
+
+					<p>Author : <?php echo esc_html( $ss_post->tst_author ); ?></p>
+					<p>Date : <?php echo esc_html( $ss_post->tst_date ); ?></p>
+					<p>Rate : <?php echo esc_html( $ss_post->tst_rate ); ?></p>
 
 					<!-- if show update and delete -->
 						<?php
@@ -173,7 +236,7 @@ class SS_WP_9_Main {
 							<?php
 						}
 						?>
-				</h5>
+				</div>
 
 					<?php
 				}

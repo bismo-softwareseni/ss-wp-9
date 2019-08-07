@@ -28,9 +28,12 @@ jQuery( document ).ready( function ( $ ) {
                 $( '.ajax-post-results-container' ).html( '' );
 
                 for( var i=0; i<response.length; i++ ) {
-                    var ss_result_tags  = '<h5 class="post-'+ response[ i ].ID +'">';
-                    ss_result_tags     += '<a href="'+ response[ i ].guid +'">'+ response[ i ].post_content +'</a>';
-
+                    var ss_result_tags  = '<div class="post-'+ response[ i ].ID +'">';
+                    ss_result_tags     += '<h4><a href="'+ response[ i ].guid +'">'+ response[ i ].post_content +'</a></h4>';
+                    ss_result_tags     += '<p>Author : '+ response[ i ].tst_author +'</p>';
+                    ss_result_tags     += '<p>Date : '+ response[ i ].tst_date +'</p>';
+                    ss_result_tags     += '<p>Rate : '+ response[ i ].tst_rate +'</p>';
+                    
                     // -- if user has access to edit or delete posts
                     if( response[ i ].tst_can_edit ) {
                         ss_result_tags     += '<div>';
@@ -39,7 +42,7 @@ jQuery( document ).ready( function ( $ ) {
                         ss_result_tags     += '</div>';
                     }
 
-                    ss_result_tags     += '</h5>';
+                    ss_result_tags     += '</div>';
 
                     $( '.ajax-post-results-container' ).append( ss_result_tags );
                 }

@@ -6,9 +6,6 @@ jQuery( document ).ready( function ( $ ) {
 	 * @param int       ss_post_id Post ID, could be empty for action insert.
 	 */
     function ss_api_crud_handlers( ss_action, ss_post_id = 0 ) {
-        var ss_post_title       = "";
-        var ss_post_excerpt     = "";
-        var ss_post_content     = "";
         var ss_ajax_method      = "POST";
         var ss_ajax_action_url  = "ss-wp-9/v1/testimonials";
         var ss_post_data        = {};
@@ -36,14 +33,21 @@ jQuery( document ).ready( function ( $ ) {
                     status: 'publish'
                 };
             } else if( ss_action == 'update' ) {
+                ss_ajax_method      = "PATCH";
                 ss_ajax_action_url  = 'ss-wp-9/v1/testimonials/' + ss_post_id;
+
+                ss_tst_author   = $( '.ss-api-form-update-post #ss-input-tst-author' ).val();
+                ss_tst_content  = $( '.ss-api-form-update-post #ss-input-tst-content' ).val();
+                ss_tst_date     = $( '.ss-api-form-update-post #ss-input-tst-date' ).val();
+                ss_tst_rate     = $( '.ss-api-form-update-post #ss-input-tst-rate' ).val();
 
                 //-- set post data
                 ss_post_data = {
                     id: ss_post_id,
-                    title: ss_post_title,
-                    excerpt: ss_post_excerpt,
-                    content: ss_post_content
+                    author: ss_tst_author,
+                    content: ss_tst_content,
+                    date: ss_tst_date,
+                    rate: ss_tst_rate
                 };
             }
             
@@ -59,7 +63,7 @@ jQuery( document ).ready( function ( $ ) {
             };
         } else if( ss_action == 'select_spesific' ) {
             //-- get spesific post by ID
-            ss_ajax_method      = "POST";
+            ss_ajax_method      = "GET";
             ss_ajax_action_url  = 'ss-wp-9/v1/testimonials/' + ss_post_id;
 
             //-- set post data
@@ -88,31 +92,23 @@ jQuery( document ).ready( function ( $ ) {
                     $(  '.post-' + ss_post_data.id ).remove();
                 } else if( ss_action == 'select_spesific' ) {
                     //-- select spesific post data by ID and apply it to the update form
-                    var ss_post_title = response.title.raw.replace(/<[^>]+>/g, '');
-                    var ss_post_excerpt = response.excerpt.raw.replace(/<[^>]+>/g, '');
-                    var ss_post_content = response.content.raw.replace(/<[^>]+>/g, '');
+                    var ss_tst_author   = response[ 0 ].tst_author;
+                    var ss_tst_content  = response[ 0 ].tst_content;
+                    var ss_tst_date     = response[ 0 ].tst_date;
+                    var ss_tst_rate     = response[ 0 ].tst_rate;
 
                     $( '.ss-api-form-update-post' ).attr( 'data-post-id', ss_post_data.id );
 
                     //-- set form value
-                    $( '.ss-api-form-update-post #ss-input-post-title' ).val( ss_post_title );
-                    $( '.ss-api-form-update-post #ss-input-post-excerpt' ).val( ss_post_excerpt );
-                    $( '.ss-api-form-update-post #ss-input-post-content' ).val( ss_post_content );
+                    $( '.ss-api-form-update-post #ss-input-tst-author' ).val( ss_tst_author );
+                    $( '.ss-api-form-update-post #ss-input-tst-content' ).val( ss_tst_content );
+                    $( '.ss-api-form-update-post #ss-input-tst-date' ).val( ss_tst_date );
+                    $( '.ss-api-form-update-post #ss-input-tst-rate' ).val( ss_tst_rate );
                 } else if( ss_action == 'update' ) {
                     //-- if successfully updating the data
 
                     //-- hide update form
                     $( '.ss-api-form-update-post' ).hide();
-
-                    //-- updating the post element
-                    var ss_post_id      = response.id;
-                    var ss_post_title   = response.title.raw;
-                    var ss_post_link    = response.guid.rendered;
-
-                    $( '.post-' + ss_post_id + ' > a'  ).html( ss_post_title ).attr( 'href', ss_post_link );
-                    
-                    //-- scroll top to the element
-                    $( 'html, body' ).scrollTop( $( '.post-' + ss_post_id ).offset().top - 100 );
                 } 
 
             },
@@ -123,7 +119,7 @@ jQuery( document ).ready( function ( $ ) {
     }
 
     //-- insert post on submit handlers
-    $( '.ss-api-form-submit-post' ).on( 'submit', function( e ) {
+    $( '.ss-api-form-insert-post' ).on( 'submit', function( e ) {
         e.preventDefault();
  
         ss_api_crud_handlers( 'insert' );
