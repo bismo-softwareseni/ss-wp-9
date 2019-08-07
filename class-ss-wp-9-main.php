@@ -79,12 +79,8 @@ class SS_WP_9_Main {
 	/**
 	 * Function to display testimonials
 	 *
-	 * @param int   $ss_page current page default 1.
-	 * @param int   $ss_tstm_per_page maximum post amount per page.
-	 */
-
-	/**
-	 * Function to create custom post type
+	 * @param int $ss_page current page default 1.
+	 * @param int $ss_tstm_per_page maximum post amount per page.
 	 */
 	public function ss_wp9_display_testimonials( $ss_page = 1, $ss_tstm_per_page ) {
 		$ss_posts_response = wp_remote_get( get_site_url() . '/wp-json/ss-wp-9/v1/testimonials?page=' . $ss_page . '&per_page=' . $ss_tstm_per_page );
@@ -121,7 +117,7 @@ class SS_WP_9_Main {
 							?>
 
 						<div>
-							<a href="#" class="api-delete-post" data-post-id="<?php echo esc_attr( $ss_post->ID ); ?>" style="color: #262626;">delete</a>
+							<a href="#" class="api-delete-post" data-post-id="<?php echo esc_attr( $ss_post->ID ); ?>" style="color: #262626; margin-right: 10px;">delete</a>
 							<a href="#" class="api-update-post" data-post-id="<?php echo esc_attr( $ss_post->ID ); ?>" style="color: #262626;">update</a>
 						</div>
 
@@ -544,8 +540,7 @@ class SS_WP_9_Main {
 	 * Function for importing js script, required for submitting, deleting, and updating posts
 	 */
 	public function ss_wp9_enqueue_js() {
-		/*
-		/ -- js file to submit the post ( insert, update, and delete )
+		// -- js file to submit the post ( insert, update, and delete )
 		wp_enqueue_script( 'ss-api-post-submit', plugin_dir_url( __FILE__ ) . '/js/ss-api-post-submit.js', array( 'jquery' ), 'v1.0', true );
 
 		// -- localize the script for ajax call ( insert, update, delete )
@@ -559,7 +554,7 @@ class SS_WP_9_Main {
 				'failure'         => __( 'Error.', 'ss-wp8' ),
 				'current_user_id' => get_current_user_id(),
 			)
-		);*/
+		);
 
 		// -- js file to handle pagination
 		wp_enqueue_script( 'ss-api-post-pagination', plugin_dir_url( __FILE__ ) . '/js/ss-api-post-pagination.js', array( 'jquery' ), 'v1.0', true );

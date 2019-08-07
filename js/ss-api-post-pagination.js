@@ -30,6 +30,15 @@ jQuery( document ).ready( function ( $ ) {
                 for( var i=0; i<response.length; i++ ) {
                     var ss_result_tags  = '<h5 class="post-'+ response[ i ].ID +'">';
                     ss_result_tags     += '<a href="'+ response[ i ].guid +'">'+ response[ i ].post_content +'</a>';
+
+                    // -- if user has access to edit or delete posts
+                    if( response[ i ].tst_can_edit ) {
+                        ss_result_tags     += '<div>';
+                        ss_result_tags     += '<a href="#" class="api-delete-post" data-post-id="' + response[ i ].ID + '" style="color: #262626; margin-right: 10px;">delete</a>';
+                        ss_result_tags     += '<a href="#" class="api-update-post" data-post-id="' + response[ i ].ID + '" style="color: #262626;">update</a>';
+                        ss_result_tags     += '</div>';
+                    }
+
                     ss_result_tags     += '</h5>';
 
                     $( '.ajax-post-results-container' ).append( ss_result_tags );

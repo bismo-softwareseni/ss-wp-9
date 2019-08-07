@@ -10,7 +10,7 @@ jQuery( document ).ready( function ( $ ) {
         var ss_post_excerpt     = "";
         var ss_post_content     = "";
         var ss_ajax_method      = "POST";
-        var ss_ajax_action_url  = "wp/v2/posts";
+        var ss_ajax_action_url  = "ss-wp-9/v1/testimonials";
         var ss_post_data        = {};
 
         if( ss_action == 'insert' || ss_action == 'update' ) {
@@ -24,7 +24,7 @@ jQuery( document ).ready( function ( $ ) {
 
             //-- set action url & post data
             if( ss_action == 'insert' ) {
-                ss_ajax_action_url  = "wp/v2/posts";
+                ss_ajax_action_url  = "ss-wp-9/v1/testimonials";
 
                 //-- set post data
                 ss_post_data = {
@@ -34,7 +34,7 @@ jQuery( document ).ready( function ( $ ) {
                     status: 'publish'
                 };
             } else if( ss_action == 'update' ) {
-                ss_ajax_action_url  = 'wp/v2/posts/' + ss_post_id;
+                ss_ajax_action_url  = 'ss-wp-9/v1/testimonials/' + ss_post_id;
 
                 //-- set post data
                 ss_post_data = {
@@ -49,7 +49,7 @@ jQuery( document ).ready( function ( $ ) {
         } else if( ss_action == 'delete' ) {
             //-- delete post by id
             ss_ajax_method      = "DELETE";
-            ss_ajax_action_url  = 'wp/v2/posts/' + ss_post_id;
+            ss_ajax_action_url  = 'ss-wp-9/v1/testimonials/' + ss_post_id;
 
             //-- set post data
             ss_post_data = {
@@ -58,7 +58,7 @@ jQuery( document ).ready( function ( $ ) {
         } else if( ss_action == 'select_spesific' ) {
             //-- get spesific post by ID
             ss_ajax_method      = "POST";
-            ss_ajax_action_url  = 'wp/v2/posts/' + ss_post_id;
+            ss_ajax_action_url  = 'ss-wp-9/v1/testimonials/' + ss_post_id;
 
             //-- set post data
             ss_post_data = {
