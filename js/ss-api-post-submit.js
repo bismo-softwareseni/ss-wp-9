@@ -18,9 +18,10 @@ jQuery( document ).ready( function ( $ ) {
             ss_ajax_method      = "POST";
 
             //-- get form input data
-            ss_post_title   = $( '#ss-input-post-title' ).val();
-            ss_post_excerpt = $( '#ss-input-post-excerpt' ).val();
-            ss_post_content = $( '#ss-input-post-excerpt' ).val();
+            ss_tst_author   = $( '#ss-input-tst-author' ).val();
+            ss_tst_content  = $( '#ss-input-tst-content' ).val();
+            ss_tst_date     = $( '#ss-input-tst-date' ).val();
+            ss_tst_rate     = $( '#ss-input-tst-rate' ).val();
 
             //-- set action url & post data
             if( ss_action == 'insert' ) {
@@ -28,9 +29,10 @@ jQuery( document ).ready( function ( $ ) {
 
                 //-- set post data
                 ss_post_data = {
-                    title: ss_post_title,
-                    excerpt: ss_post_excerpt,
-                    content: ss_post_content,
+                    author: ss_tst_author,
+                    content: ss_tst_content,
+                    date: ss_tst_date,
+                    rate: ss_tst_rate,
                     status: 'publish'
                 };
             } else if( ss_action == 'update' ) {

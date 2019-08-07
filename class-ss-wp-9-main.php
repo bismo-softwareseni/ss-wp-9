@@ -71,10 +71,59 @@ class SS_WP_9_Main {
 			$ss_shortcode_atts
 		);
 
+		// -- display insert new testimonial
+		$this->ss_wp9_display_ins_form();
+
+		// -- display testimonial ( ajax )
 		$this->ss_wp9_display_testimonials( 1, $this->ss_per_page );
 
 		return ob_get_clean();
 	}
+
+	/**
+	 * Function to display form to insert new testimonial
+	 */
+	public function ss_wp9_display_ins_form() {
+		// -- only show the form to the user that has access and have been logged in
+		if ( is_user_logged_in() && current_user_can( 'edit_posts' ) ) {
+			?>
+
+		<form class="ss-api-form-submit-post ui form" style="margin-bottom: 50px;">
+			<h4>Insert New Testimonial</h4>
+
+			<div class="field">
+				<label for="ss-input-tst-title">Author</label>
+				<input required type="text" name="ss-input-tst-author" id="ss-input-tst-author" class="ss-input-text" value="" style="width:100%;" />
+			</div>
+
+			<div class="field">
+				<label for="ss-input-tst-title">Content</label>
+				<textarea required name="ss-input-tst-content" id="ss-input-tst-content" class="ss-input-textarea" style="width:100%;"></textarea>
+			</div>
+
+			<div class="field">
+				<label for="ss-input-tst-date">Date ( Format: yyyy-mm-dd ) </label>
+				<input required type="text" name="ss-input-tst-date" id="ss-input-tst-date" class="ss-input-text" value="" style="width:100%;" />
+			</div>
+
+			<div class="field">
+				<label for="ss-input-tst-rate">Rate</label>
+				<select class="ui fluid dropdown" name="ss-input-tst-rate" id="ss-input-tst-rate">
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+				</select>
+			</div>
+
+			<button type="submit" name="ss-tst-submit" class="ss-button ui button" style="margin-top:10px;">Submit</button>
+		</form>
+
+			<?php
+		}
+	}
+
 
 	/**
 	 * Function to display testimonials
@@ -92,7 +141,7 @@ class SS_WP_9_Main {
 			?>
 
 		<!-- post results container -->
-		<div class="ajax-post-results-container">
+		<div class="ajax-post-results-container" style="margin-bottom: 30px;">
 			<?php
 				// -- get the results
 				$ss_posts_result = json_decode( wp_remote_retrieve_body( $ss_posts_response ) );
@@ -134,7 +183,7 @@ class SS_WP_9_Main {
 		<!-- end post results container -->
 
 		<!-- pagination container -->
-		<div class="ajax-pagination-container">
+		<div class="ajax-pagination-container" style="margin-bottom: 30px;">
 			<?php
 				// -- set next page
 				$ss_next_page = 0;
