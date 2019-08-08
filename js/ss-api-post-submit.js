@@ -1,5 +1,28 @@
 jQuery( document ).ready( function ( $ ) {
     /**
+	 * Function to activate datatables
+	 */
+    $.ss_testimonial_datatable = $( '#ss-testimonial-datatable' ).dataTable( {
+            'processing': true,
+            'serverSide': false,
+            "ordering": false,
+            "pageLength": 1,
+            'ajax': {
+                url : ss_api_post_submit_action.root + 'ss-wp-9/v1/testimonials?is_datatable=true',
+                type: 'GET',
+                dataSrc: "data"
+            },
+            'columns': [
+                { 'data' : 'tst_author' },
+                { 'data' : 'post_content' },
+                { 'data' : 'tst_date' },
+                { 'data' : 'tst_rate' }
+            ]
+
+    } );
+
+
+    /**
 	 * Function to handle select, insert, update, and delete
 	 *
 	 * @param string    ss_action Action type : insert, update, or delete.
@@ -82,6 +105,9 @@ jQuery( document ).ready( function ( $ ) {
                 xhr.setRequestHeader( 'X-WP-Nonce', ss_api_post_submit_action.nonce );
             },
             success : function( response ) {
+                //-- get current max page
+                var ss_max_page = parseInt( $( '.pagination-buttons-container' ).attr( 'data-max-page' ) );
+
                 //-- show success notification
                 if( ss_action != 'select_spesific' ) {
                     alert( ss_api_post_submit_action.success );
@@ -90,12 +116,16 @@ jQuery( document ).ready( function ( $ ) {
                 if( ss_action == 'delete' ) {
                     //-- remove element when data successfully deleted
                     $(  '.post-' + ss_post_data.id ).remove();
+
+                    //-- update max page at pagination container
+                    $( '.pagination-buttons-container' ).attr( 'data-max-page', (ss_max_page-1) );
+                    $( '.page-number .max-page' ).html( (ss_max_page-1) );
                 } else if( ss_action == 'select_spesific' ) {
                     //-- select spesific post data by ID and apply it to the update form
-                    var ss_tst_author   = response[ 0 ].tst_author;
-                    var ss_tst_content  = response[ 0 ].tst_content;
-                    var ss_tst_date     = response[ 0 ].tst_date;
-                    var ss_tst_rate     = response[ 0 ].tst_rate;
+                    var ss_tst_author   = response.data[ 0 ].tst_author;
+                    var ss_tst_content  = response.data[ 0 ].tst_content;
+                    var ss_tst_date     = response.data[ 0 ].tst_date;
+                    var ss_tst_rate     = response.data[ 0 ].tst_rate;
 
                     $( '.ss-api-form-update-post' ).attr( 'data-post-id', ss_post_data.id );
 
@@ -109,8 +139,19 @@ jQuery( document ).ready( function ( $ ) {
 
                     //-- hide update form
                     $( '.ss-api-form-update-post' ).hide();
-                } 
+                } else if( ss_action == 'insert' ) {
+                    //-- update max page at pagination container
+                    $( '.pagination-buttons-container' ).attr( 'data-max-page', (ss_max_page+1) );
+                    $( '.page-number .max-page' ).html( (ss_max_page+1) );
+                }
 
+                //-- update jquery datatables
+                $.ss_testimonial_datatable.api().ajax.reload();
+
+                //-- update testimonial results ( non datatables )
+                if ( $.isFunction( $.ss_reload_testimonial ) ) {
+                    $.ss_reload_testimonial();
+                }
             },
             fail : function( response ) {
                 alert( ss_api_post_submit_action.failure );
@@ -126,7 +167,7 @@ jQuery( document ).ready( function ( $ ) {
     });
 
     //-- delete post button clicked
-    $( '.api-delete-post' ).on( 'click', function( e ) {
+    $( '.ajax-post-results-container' ).on( 'click', '.api-delete-post', function( e ) {
         e.preventDefault();
 
         //-- get post id from data attribute
@@ -136,7 +177,7 @@ jQuery( document ).ready( function ( $ ) {
     } );
 
     //-- update post button clicked ( in each post )
-    $( '.api-update-post' ).on( 'click', function( e ) {
+    $( '.ajax-post-results-container' ).on( 'click', '.api-update-post', function( e ) {
         e.preventDefault();
 
         //-- get post id from data attribute

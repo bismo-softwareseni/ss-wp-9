@@ -1,6 +1,14 @@
 jQuery( document ).ready( function ( $ ) {
+    //-- function to reload testimonial results
+    $.ss_reload_testimonial = function() {
+        //-- start on first page
+        $( '.button-ajax-pagination.prev-page' ).attr( 'data-page', 1 );
+
+        $( '.button-ajax-pagination.prev-page' ).click();
+    }
+    
     //-- button ajax pagination click handlers
-    $( '.button-ajax-pagination' ).on( 'click', function() {
+    $( '.pagination-buttons-container' ).on( 'click', '.button-ajax-pagination', function() {
         //-- get pagination variables
         var ss_current_page = parseInt( $( this ).parent().attr( 'data-current-page' ) );
         var ss_max_page     = parseInt( $( this ).parent().attr( 'data-max-page' ) );
@@ -27,18 +35,18 @@ jQuery( document ).ready( function ( $ ) {
                 //-- clear current container
                 $( '.ajax-post-results-container' ).html( '' );
 
-                for( var i=0; i<response.length; i++ ) {
-                    var ss_result_tags  = '<div class="post-'+ response[ i ].ID +'">';
-                    ss_result_tags     += '<h4><a href="'+ response[ i ].guid +'">'+ response[ i ].post_content +'</a></h4>';
-                    ss_result_tags     += '<p>Author : '+ response[ i ].tst_author +'</p>';
-                    ss_result_tags     += '<p>Date : '+ response[ i ].tst_date +'</p>';
-                    ss_result_tags     += '<p>Rate : '+ response[ i ].tst_rate +'</p>';
+                for( var i=0; i<response.data.length; i++ ) {
+                    var ss_result_tags  = '<div class="post-'+ response.data[ i ].ID +'">';
+                    ss_result_tags     += '<h4><a href="'+ response.data[ i ].guid +'">'+ response.data[ i ].post_content +'</a></h4>';
+                    ss_result_tags     += '<p>Author : '+ response.data[ i ].tst_author +'</p>';
+                    ss_result_tags     += '<p>Date : '+ response.data[ i ].tst_date +'</p>';
+                    ss_result_tags     += '<p>Rate : '+ response.data[ i ].tst_rate +'</p>';
                     
                     // -- if user has access to edit or delete posts
-                    if( response[ i ].tst_can_edit ) {
+                    if( response.data[ i ].tst_can_edit ) {
                         ss_result_tags     += '<div>';
-                        ss_result_tags     += '<a href="#" class="api-delete-post" data-post-id="' + response[ i ].ID + '" style="color: #262626; margin-right: 10px;">delete</a>';
-                        ss_result_tags     += '<a href="#" class="api-update-post" data-post-id="' + response[ i ].ID + '" style="color: #262626;">update</a>';
+                        ss_result_tags     += '<a href="#" class="api-delete-post" data-post-id="' + response.data[ i ].ID + '" style="color: #262626; margin-right: 10px;">delete</a>';
+                        ss_result_tags     += '<a href="#" class="api-update-post" data-post-id="' + response.data[ i ].ID + '" style="color: #262626;">update</a>';
                         ss_result_tags     += '</div>';
                     }
 

@@ -197,8 +197,21 @@ class SS_WP_9_Main {
 		} else {
 			?>
 
+		<!-- show testmonials using datatables -->
+		<table id="ss-testimonial-datatable" class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<th>Author</th>
+					<th>Testimonial</th>
+					<th>Date</th>
+					<th>Rate</th>
+				</tr>
+			</thead>
+		</table>
+		<!-- end show testimonials using datatables -->
+
 		<!-- post results container -->
-		<div class="ajax-post-results-container" style="margin-bottom: 30px;">
+		<div class="ajax-post-results-container" style="margin: 50px 0;">
 			<?php
 				// -- get the results
 				$ss_posts_result = json_decode( wp_remote_retrieve_body( $ss_posts_response ) );
@@ -207,9 +220,9 @@ class SS_WP_9_Main {
 				$ss_max_page = 0;
 
 			if ( ! empty( $ss_posts_result ) ) {
-				$ss_max_page = $ss_posts_result[0]->max_num_pages;
+				$ss_max_page = $ss_posts_result->max_num_pages;
 
-				foreach ( $ss_posts_result as $ss_post ) {
+				foreach ( $ss_posts_result->data as $ss_post ) {
 					?>
 
 				<div class="post-<?php echo esc_attr( $ss_post->ID ); ?>">
@@ -264,7 +277,7 @@ class SS_WP_9_Main {
 				<span class="max-page"><?php echo esc_html( $ss_max_page ); ?></span>
 			</div>
 
-			<div class="ui large buttons" data-max-page="<?php echo esc_attr( $ss_max_page ); ?>" data-current-page="1" data-post-perpage="<?php echo esc_attr( $ss_tstm_per_page ); ?>">
+			<div class="ui large buttons pagination-buttons-container" data-max-page="<?php echo esc_attr( $ss_max_page ); ?>" data-current-page="1" data-post-perpage="<?php echo esc_attr( $ss_tstm_per_page ); ?>">
 				<button class="ui button left labeled icon button-ajax-pagination prev-page" data-page="1">
 					<i class="left arrow icon"></i> Previous Page
 				</button>
@@ -364,6 +377,7 @@ class SS_WP_9_Main {
 	 * @return object $ss_testimonials Testimonials data.
 	 */
 	public function ss_wp9_get_testimonials( WP_REST_Request $request ) {
+		$ss_json_data    = [];
 		$ss_testimonials = [];
 
 		// -- get parameters
@@ -379,6 +393,13 @@ class SS_WP_9_Main {
 					'p'           => $parameters['id'],
 				);
 			} else {
+				// -- get all if displayed in datatable
+				if ( isset( $parameters['is_datatable'] ) ) {
+					if ( $parameters['is_datatable'] ) {
+						$parameters['per_page'] = 0;
+					}
+				}
+
 				// -- get all testimonials
 				$ss_args = array(
 					'post_type'      => $this->ss_custom_post_type_name,
@@ -396,6 +417,7 @@ class SS_WP_9_Main {
 			if ( ! empty( $ss_post_results ) ) {
 				// -- get maximum pages
 				$ss_max_num_pages = $ss_post_results->max_num_pages;
+				$ss_found_posts   = $ss_post_results->found_posts;
 
 				// -- check if current user can edit posts
 				$ss_user_can_edit = false;
@@ -407,23 +429,31 @@ class SS_WP_9_Main {
 					array_push(
 						$ss_testimonials,
 						[
-							'ID'            => $ss_post->ID,
-							'post_title'    => $ss_post->post_title,
-							'post_content'  => $ss_post->post_content,
-							'guid'          => $ss_post->guid,
-							'max_num_pages' => $ss_max_num_pages,
-							'tst_author'    => get_post_meta( $ss_post->ID, $this->ss_prefix . 'author', true ),
-							'tst_content'   => get_post_meta( $ss_post->ID, $this->ss_prefix . 'content', true ),
-							'tst_date'      => get_post_meta( $ss_post->ID, $this->ss_prefix . 'date', true ),
-							'tst_rate'      => get_post_meta( $ss_post->ID, $this->ss_prefix . 'rate', true ),
-							'tst_can_edit'  => $ss_user_can_edit,
+							'ID'           => $ss_post->ID,
+							'post_title'   => $ss_post->post_title,
+							'post_content' => $ss_post->post_content,
+							'guid'         => $ss_post->guid,
+							'tst_author'   => get_post_meta( $ss_post->ID, $this->ss_prefix . 'author', true ),
+							'tst_content'  => get_post_meta( $ss_post->ID, $this->ss_prefix . 'content', true ),
+							'tst_date'     => get_post_meta( $ss_post->ID, $this->ss_prefix . 'date', true ),
+							'tst_rate'     => get_post_meta( $ss_post->ID, $this->ss_prefix . 'rate', true ),
+							'tst_can_edit' => $ss_user_can_edit,
 						]
 					);
 				}
+
+				$ss_json_data = array(
+					'draw'            => intval( $this->ss_per_page ),
+					'recordsTotal'    => intval( $ss_found_posts ),
+					'recordsFiltered' => intval( $ss_found_posts ),
+					'max_num_pages'   => $ss_max_num_pages,
+					'found_posts'     => $ss_found_posts,
+					'data'            => $ss_testimonials,
+				);
 			}
 		}
 
-		return $ss_testimonials;
+		return $ss_json_data;
 	}
 
 	/**
@@ -652,6 +682,13 @@ class SS_WP_9_Main {
 	 * Function for importing js script, required for submitting, deleting, and updating posts
 	 */
 	public function ss_wp9_enqueue_js() {
+		// -- enqueue datatables library
+		wp_enqueue_script( 'datatables-js', 'https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js', array( 'jquery' ), 'v1.10.13', true );
+		wp_enqueue_script( 'datatables-bootstrap-js', 'https://cdn.datatables.net/1.10.13/js/dataTables.bootstrap.min.js', array( 'jquery' ), 'v1.10.13', true );
+
+		wp_enqueue_style( 'datatables-bootstrap-css', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css', array(), 'v1.10.13' );
+		wp_enqueue_style( 'datatables-css', 'https://cdn.datatables.net/1.10.13/css/dataTables.bootstrap.min.css', array(), 'v1.10.13' );
+
 		// -- js file to submit the post ( insert, update, and delete )
 		wp_enqueue_script( 'ss-api-post-submit', plugin_dir_url( __FILE__ ) . '/js/ss-api-post-submit.js', array( 'jquery' ), 'v1.0', true );
 
