@@ -377,8 +377,11 @@ class SS_WP_9_Main {
 	 * @return object $ss_testimonials Testimonials data.
 	 */
 	public function ss_wp9_get_testimonials( WP_REST_Request $request ) {
-		$ss_json_data    = [];
-		$ss_testimonials = [];
+		$ss_json_data        = [];
+		$ss_testimonials     = [];
+		$ss_datatable_draw   = intval( $this->ss_per_page );
+		$ss_datatable_start  = 0;
+		$ss_datatable_length = 0;
 
 		// -- get parameters
 		$parameters = $request->get_params();
@@ -396,19 +399,42 @@ class SS_WP_9_Main {
 				// -- get all if displayed in datatable
 				if ( isset( $parameters['is_datatable'] ) ) {
 					if ( $parameters['is_datatable'] ) {
-						$parameters['per_page'] = 0;
-					}
-				}
+						// -- get draw amount
+						if ( isset( $parameters['draw'] ) ) {
+							$ss_datatable_draw = $parameters['draw'];
+						}
 
-				// -- get all testimonials
-				$ss_args = array(
-					'post_type'      => $this->ss_custom_post_type_name,
-					'post_status'    => 'publish',
-					'orderby'        => 'date',
-					'order'          => 'DESC',
-					'paged'          => $parameters['page'],
-					'posts_per_page' => $parameters['per_page'],
-				);
+						// -- get start
+						if ( isset( $parameters['start'] ) ) {
+							$ss_datatable_start = $parameters['start'];
+						}
+
+						// -- get length
+						if ( isset( $parameters['length'] ) ) {
+							$ss_datatable_length = $parameters['length'];
+						}
+
+						// -- get all testimonials
+						$ss_args = array(
+							'post_type'      => $this->ss_custom_post_type_name,
+							'post_status'    => 'publish',
+							'orderby'        => 'date',
+							'order'          => 'DESC',
+							'offset'         => $ss_datatable_start,
+							'posts_per_page' => $ss_datatable_length,
+						);
+					}
+				} else {
+					// -- get all testimonials
+					$ss_args = array(
+						'post_type'      => $this->ss_custom_post_type_name,
+						'post_status'    => 'publish',
+						'orderby'        => 'date',
+						'order'          => 'DESC',
+						'paged'          => $parameters['page'],
+						'posts_per_page' => $parameters['per_page'],
+					);
+				}
 			}
 
 			$ss_post_results = new WP_Query( $ss_args );
@@ -443,7 +469,7 @@ class SS_WP_9_Main {
 				}
 
 				$ss_json_data = array(
-					'draw'            => intval( $this->ss_per_page ),
+					'draw'            => $ss_datatable_draw,
 					'recordsTotal'    => intval( $ss_found_posts ),
 					'recordsFiltered' => intval( $ss_found_posts ),
 					'max_num_pages'   => $ss_max_num_pages,

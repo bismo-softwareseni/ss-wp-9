@@ -4,7 +4,7 @@ jQuery( document ).ready( function ( $ ) {
 	 */
     $.ss_testimonial_datatable = $( '#ss-testimonial-datatable' ).dataTable( {
             'processing': true,
-            'serverSide': false,
+            'serverSide': true,
             "ordering": false,
             "pageLength": 1,
             'ajax': {
