@@ -197,6 +197,6 @@ jQuery( document ).ready( function ( $ ) {
     $( '.ss-api-form-update-post' ).on( 'submit', function( e ) {
         e.preventDefault();
 
-        ss_api_crud_handlers( 'update', $( this ).data( 'post-id' ) );
+        ss_api_crud_handlers( 'update', $( this ).attr( 'data-post-id' ) );
     } );
 } );

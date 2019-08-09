@@ -382,6 +382,7 @@ class SS_WP_9_Main {
 		$ss_datatable_draw   = intval( $this->ss_per_page );
 		$ss_datatable_start  = 0;
 		$ss_datatable_length = 0;
+		$ss_datatable_search = '';
 
 		// -- get parameters
 		$parameters = $request->get_params();
