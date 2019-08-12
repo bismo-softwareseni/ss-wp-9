@@ -320,6 +320,8 @@ class SS_WP_9_Main {
 				'taxonomies'    => array( '' ),
 				'menu_icon'     => 'dashicons-format-quote',
 				'has_archive'   => true,
+				'show_in_rest'  => true,
+				'supports'      => array( 'editor' ),
 			)
 		);
 	}
