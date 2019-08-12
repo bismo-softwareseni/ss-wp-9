@@ -321,7 +321,6 @@ class SS_WP_9_Main {
 				'menu_icon'     => 'dashicons-format-quote',
 				'has_archive'   => true,
 				'show_in_rest'  => true,
-				'supports'      => array( 'editor' ),
 			)
 		);
 	}
